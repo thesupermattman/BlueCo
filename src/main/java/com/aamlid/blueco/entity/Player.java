@@ -13,8 +13,7 @@ public class Player {
     private String position;
     private int price;
 
-    public Player(String id, String name, int number, String position, int price) {
-        this.id = id;
+    public Player(String name, int number, String position, int price) {
         this.name = name;
         this.number = number;
         this.position = position;
