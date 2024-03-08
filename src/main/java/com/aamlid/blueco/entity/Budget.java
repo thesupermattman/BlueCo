@@ -11,9 +11,6 @@ public class Budget {
     private String type;
     private int amount;
 
-    public Budget() {
-    }
-
     public Budget(String type, int amount) {
         this.type = type;
         this.amount = amount;
