@@ -1,6 +1,8 @@
 package com.aamlid.blueco.service;
 
+import com.aamlid.blueco.entity.Budget;
 import com.aamlid.blueco.entity.Player;
+import com.aamlid.blueco.repository.BudgetRepository;
 import com.aamlid.blueco.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,10 +14,12 @@ import java.util.Optional;
 public class PlayerService {
 
     private final PlayerRepository playerRepository;
+    private final BudgetRepository budgetRepository;
 
     @Autowired
-    public PlayerService(PlayerRepository playerRepository) {
+    public PlayerService(PlayerRepository playerRepository, BudgetRepository budgetRepository) {
         this.playerRepository = playerRepository;
+        this.budgetRepository = budgetRepository;
     }
 
     public List<Player> findAll() {
@@ -27,7 +31,14 @@ public class PlayerService {
     }
 
     public Player save(Player player) {
-        return playerRepository.save(player);
+        Budget transferBudget = budgetRepository.findByType("Transfer Budget");
+        Player newPlayer = playerRepository.save(player);
+
+        int updatedTransferBudget = transferBudget.getAmount() - newPlayer.getPrice();
+        transferBudget.setAmount(updatedTransferBudget);
+        budgetRepository.save(transferBudget);
+
+        return newPlayer;
     }
 
     public Player update(String name, Player updatedPlayer) {
@@ -36,7 +47,6 @@ public class PlayerService {
         if (optionalPlayer.isPresent()) {
             Player existingPlayer = optionalPlayer.get();
 
-            // Update the fields you want to change
             existingPlayer.setName(updatedPlayer.getName());
             existingPlayer.setNumber(updatedPlayer.getNumber());
             existingPlayer.setPosition(updatedPlayer.getPosition());
@@ -49,6 +59,13 @@ public class PlayerService {
     }
 
     public void deleteByName(String name) {
+        Budget transferBudget = budgetRepository.findByType("Transfer Budget");
+        Player deletedPlayer = playerRepository.findByName(name);
+
+        int updatedBudget = transferBudget.getAmount() + deletedPlayer.getPrice();
+        transferBudget.setAmount(updatedBudget);
+        budgetRepository.save(transferBudget);
+
         playerRepository.deleteByName(name);
     }
 }

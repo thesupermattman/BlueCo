@@ -42,23 +42,18 @@ public class PlayerController {
         if (existingPlayer != null) {
             return new ResponseEntity<>(player, HttpStatus.OK);
         } else {
-            // Handle the case where the player with the given ID is not found
-            // You can customize the response or return a specific error message
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    @DeleteMapping
+    @DeleteMapping("players/{name}")
     public String deletePlayer(@PathVariable String name) {
-
         Player tempPlayer = playerService.findByName(name);
 
         if (tempPlayer == null) {
             throw new RuntimeException("Player not found - " + name);
         }
-
         playerService.deleteByName(name);
-
         return "Deleted player - " + name;
     }
 }
